@@ -17,8 +17,8 @@ elseif executable('sqlite3')
 endif
 
 " Execute a sqlite SQL query.
-function! s:exec_query(query)
-  let s:cmd = printf('%s tags.sqlite "%s"', s:sqlite, a:query)
+function! s:exec_query(query, options)
+  let s:cmd = printf('%s tags.sqlite %s "%s"', s:sqlite, a:options, a:query)
   let s:output = system(s:cmd)
 
   " Log executed message.
@@ -43,12 +43,23 @@ function! ctags_explorer#find_parents(class_name, namespace)
   let s:query_final = printf(s:query, s:param_escape(a:class_name),
         \ s:param_escape('%' . a:namespace))
   " Execute the query.
-  let s:response = s:exec_query(s:query_final)
+  let s:response = s:exec_query(s:query_final, '')
 
   " If command execution was successful we have the parents
   " but when class implements an interface will be received
   " with multiples parents separated by comma.
   " TODO: Implement comma split and recursive parents lookup.
+  if s:response != -1
+    return s:response
+  endif
+endfunction
+
+" List all namespaced classes from tags sqlite DB.
+function! ctags_explorer#list_classes()
+  let s:query = "SELECT tags2db_namespace, tags2db_tagname FROM tags_php WHERE tags2db_kind IN ('c', 't');"
+  " Execute the query.
+  let s:response = s:exec_query(s:query, '-separator ''\''')
+
   if s:response != -1
     return s:response
   endif
