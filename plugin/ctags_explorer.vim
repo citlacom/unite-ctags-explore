@@ -65,5 +65,16 @@ function! ctags_explorer#list_classes()
   endif
 endfunction
 
+" List all functions from tags sqlite DB.
+function! ctags_explorer#list_functions()
+  let s:query = "SELECT tags2db_namespace, tags2db_tagname FROM tags_php WHERE tags2db_kind = 'f';"
+  " Execute the query.
+  let s:response = s:exec_query(s:query, '-separator ''\''')
+
+  if s:response != -1
+    return s:response
+  endif
+endfunction
+
 let &cpo = s:save_cpo
 unlet s:save_cpo
